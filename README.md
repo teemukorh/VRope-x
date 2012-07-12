@@ -8,6 +8,8 @@ The VRope-x was ported to Cocos2d-x (v2.0) by [Creeng Ltd.](http://www.creeng.co
 The port was made from [VRope 0.4](https://github.com/mb1/VRope) made by Flightless, which was a modified version of the [original implementation](http://www.cocos2d-iphone.org/archives/1112) by [patrickC](http://cleverhamstergames.com). The Flightless
 version added a MIT license, which is also contained in this ported version.
 
+[Demo video](http://onemoresoftwareblog.blogspot.fi/2012/07/vrope-for-cocos2d-x.html) 
+
 Usage
 -----
 
