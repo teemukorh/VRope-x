@@ -1,11 +1,11 @@
 VRope-x
 =======
 
-(Cocos2d-x)[http://www.cocos2d-x.com] /c++ port of simple rope system for [cocos2d](http://www.cocos2d-iphone.org) using [Verlet Integration](http://en.wikipedia.org/wiki/Verlet_integration).
+[Cocos2d-x](http://www.cocos2d-x.com) /c++ port of simple rope system for [cocos2d](http://www.cocos2d-iphone.org) using [Verlet Integration](http://en.wikipedia.org/wiki/Verlet_integration).
 
 The VRope-x was ported to Cocos2d-x (v2.0) by [Creeng Ltd.](http://www.creeng.com).
 
-The port was made from [VRope 0.4](https://github.com/mb1/VRope) made by Flightless, which was a modified version of the original implementation. The Flightless
+The port was made from [VRope 0.4](https://github.com/mb1/VRope) made by Flightless, which was a modified version of the [original implementation](http://www.cocos2d-iphone.org/archives/1112) by [patrickC](http://cleverhamstergames.com). The Flightless
 version added a MIT license, which is also contained in this ported version.
 
 Usage
