@@ -1,8 +1,30 @@
+/*
+ 
+ MIT License.
+
+ Copyright (c) 2012 Creeng Ltd.
+ Copyright (c) 2012 Flightless Ltd.  
+ Copyright (c) 2010 Clever Hamster Games.
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
+*/
+
+//
+//  vrope.cpp
+//
+//  Created by patrick on 14/10/2010.
+//  Modified by Flightless www.flightless.co.nz 20/4/2012
+//  Ported to cocos2d-x by Creeng www.creeng.com 12/7/2012
+//
+
 #include "vrope.h"
 
 using namespace cocos2d;
-
-// todo : nullify other members in constructors
 
 VRope::VRope(b2Body* body1, b2Body* body2, CCSpriteBatchNode* ropeBatchNode)
     : bodyA(body1), bodyB(body2), spriteSheet(ropeBatchNode), jointAB(0)
@@ -29,24 +51,13 @@ VRope::VRope(const CCPoint& pointA, const CCPoint& pointB, CCSpriteBatchNode* ro
 
 VRope::~VRope()
 {
-    // TODO
-        /*
-	for(int i=0;i<numPoints;i++) {
-		[[vPoints objectAtIndex:i] release];
-		if(i!=numPoints-1)
-			[[vSticks objectAtIndex:i] release];
-	}
-	[vPoints removeAllObjects];
-	[vSticks removeAllObjects];
-    */
-    
-    //[self removeSprites];
- /*   [ropeSprites release];
-    
-	[vPoints release];
-	[vSticks release];
-	[super dealloc];
-    */
+    for(int i=0; i<numPoints; ++i)
+    {
+        delete vPoints[i];
+        if (i!=numPoints-1) {
+            delete vSticks[i];
+        }
+    }
 }
 
 void VRope::update(float dt)
@@ -135,18 +146,15 @@ void VRope::reset()
     
 void VRope::createRope(const CCPoint& pointA, const CCPoint& pointB)
 {
-/*	vPoints = [[NSMutableArray alloc] init];
-	vSticks = [[NSMutableArray alloc] init];
-	ropeSprites = [[NSMutableArray alloc] init];*/
-
     float distance = ccpDistance(pointA,pointB);
 	int segmentFactor = 20; // 16; //12; //increase value to have less segments per rope, decrease to have more segments
-	numPoints = distance/segmentFactor;
+	numPoints = (int) distance/segmentFactor;
+
 	CCPoint diffVector = ccpSub(pointB,pointA);
 	float multiplier = distance / (numPoints-1);
 	antiSagHack = 0.1f; //HACK: scale down rope points to cheat sag. set to 0 to disable, max suggested value 0.1
 	for(int i=0;i<numPoints;i++) {
-		CCPoint tmpVector = ccpAdd(pointA, ccpMult(ccpNormalize(diffVector),multiplier*i*(1-antiSagHack)));		
+		CCPoint tmpVector = ccpAdd(pointA, ccpMult(ccpNormalize(diffVector), multiplier*i*(1-antiSagHack)));		
         VPoint *tmpPoint = new VPoint();
         tmpPoint->setPos(tmpVector.x, tmpVector.y);
         vPoints.push_back(tmpPoint);
@@ -164,34 +172,26 @@ void VRope::createRope(const CCPoint& pointA, const CCPoint& pointB)
 			float stickAngle = ccpToAngle(stickVector);
 
             float f = spriteSheet->getTextureAtlas()->getTexture()->getPixelsHigh() / CC_CONTENT_SCALE_FACTOR();
-            CCRect r = CCRectMake(0,0,multiplier, f);
+            CCRect r = CCRectMake(0, 0, multiplier, f);
             CCSprite* tmpSprite = CCSprite::spriteWithTexture(spriteSheet->getTexture(), r);
 
-            ccTexParams params = {GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT};
+            ccTexParams params = {GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT};
             tmpSprite->getTexture()->setTexParameters(&params);
-            tmpSprite->setPosition(ccpMidpoint(ccp(point1->x,point1->y),ccp(point2->x,point2->y)));
+            tmpSprite->setPosition(ccpMidpoint(ccp(point1->x, point1->y), ccp(point2->x, point2->y)));
             tmpSprite->setRotation(-1 * CC_RADIANS_TO_DEGREES(stickAngle));
             spriteSheet->addChild(tmpSprite);
             ropeSprites.push_back(tmpSprite);
-
-            /*CCSprite *tmpSprite = [CCSprite spriteWithBatchNode:spriteSheet rect:CGRectMake(0,0,multiplier,[[[spriteSheet textureAtlas] texture] pixelsHigh]/CC_CONTENT_SCALE_FACTOR())]; // Flightless, retina fix
-			ccTexParams params = {GL_LINEAR,GL_LINEAR,GL_REPEAT,GL_REPEAT};
-			[tmpSprite.texture setTexParameters:&params];
-			[tmpSprite setPosition:ccpMidpoint(ccp(point1.x,point1.y),ccp(point2.x,point2.y))];
-			[tmpSprite setRotation:-1 * CC_RADIANS_TO_DEGREES(stickAngle)];
-			[spriteSheet addChild:tmpSprite];
-			[ropeSprites addObject:tmpSprite];*/
 		}
 	}
 }
 
 void VRope::resetWithPoints(const CCPoint &pointA, const CCPoint& pointB)
 {
-	float distance = ccpDistance(pointA,pointB);
-	CCPoint diffVector = ccpSub(pointB,pointA);
+	float distance = ccpDistance(pointA, pointB);
+	CCPoint diffVector = ccpSub(pointB, pointA);
 	float multiplier = distance / (numPoints - 1);
 	for(int i=0;i<numPoints;i++) {
-		CCPoint tmpVector = ccpAdd(pointA, ccpMult(ccpNormalize(diffVector),multiplier*i*(1-antiSagHack)));
+		CCPoint tmpVector = ccpAdd(pointA, ccpMult(ccpNormalize(diffVector), multiplier*i*(1-antiSagHack)));
         VPoint *tmpPoint = vPoints[i];
         tmpPoint->setPos(tmpVector.x, tmpVector.y);
 	}
@@ -241,28 +241,30 @@ void VRope::updateWithPoints(const CCPoint& pointA, const CCPoint& pointB, float
 
 void VRope::debugDraw()
 {
-    	//Depending on scenario, you might need to have different Disable/Enable of Client States
+    //Depending on scenario, you might need to have different Disable/Enable of Client States
 	//glDisableClientState(GL_TEXTURE_2D);
 	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	//glDisableClientState(GL_COLOR_ARRAY);
 	//set color and line width for ccDrawLine
-/*	glColor4f(0.0f,0.0f,1.0f,1.0f);
-	glLineWidth(5.0f);
+
+    ccDrawColor4F(0.0f, 0.0f, 1.0f, 1.0f);
+    glLineWidth(5.0f);
+
 	for(int i=0;i<numPoints-1;i++) {
 		//"debug" draw
-		VPoint *pointA = [[vSticks objectAtIndex:i] getPointA];
-		VPoint *pointB = [[vSticks objectAtIndex:i] getPointB];
-		ccDrawPoint(ccp(pointA.x,pointA.y));
-		ccDrawPoint(ccp(pointB.x,pointB.y));
+		VPoint *pointA = vSticks[i]->getPointA();
+		VPoint *pointB = vSticks[i]->getPointB();
+		ccDrawPoint(ccp(pointA->x,pointA->y));
+		ccDrawPoint(ccp(pointB->x,pointB->y));
 		//ccDrawLine(ccp(pointA.x,pointA.y),ccp(pointB.x,pointB.y));
 	}
-	//restore to white and default thickness
-	glColor4f(1.0f,1.0f,1.0f,1.0f);
-	glLineWidth(1);
+
+    //restore to white and default thickness
+	ccDrawColor4F(1.0f,1.0f,1.0f,1.0f);
+    glLineWidth(1);
 	//glEnableClientState(GL_TEXTURE_2D);
 	//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	//glEnableClientState(GL_COLOR_ARRAY);
-    */
 }
 
 void VRope::updateSprites()
